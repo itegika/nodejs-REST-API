@@ -6,9 +6,12 @@ const listContacts = require("./listContacts");
 
 const addContact = async (data) => {
   const contacts = await listContacts();
+  console.log(contacts);
   const newContact = { ...data, id: v4() };
   contacts.push(newContact);
+  console.log(contacts);
   await updateContacts(contacts);
+  console.log(contacts);
   return newContact;
 };
 
