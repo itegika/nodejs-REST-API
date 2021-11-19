@@ -44,6 +44,7 @@ const add = async (req, res, next) => {
 
 const updateById = async (req, res, next) => {
   const { id } = req.params;
+  console.log(req.body);
   const result = await updateContactById(id, req.body);
   if (!result) {
     throw new NotFound(`Contact with id=${id} not found`);
