@@ -1,5 +1,3 @@
-/* eslint-disable semi */
-/* eslint-disable quotes */
 const validation = (schema) => {
   return (req, res, next) => {
     const { error } = schema.validate(req.body);

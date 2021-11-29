@@ -1,15 +1,36 @@
-/* eslint-disable semi */
-/* eslint-disable quotes */
+const { Schema } = require("mongoose");
 const Joi = require("joi");
 
-const joiSchema = Joi.object({
-  name: Joi.string().alphanum().min(3).max(18).required(),
-  email: Joi.string().required(),
-  phone: Joi.string()
-    // .integer()
-    // .min(10 ** 9)
-    // .max(10 ** 10 - 1)
-    .required(),
+const contactSchema = Schema({
+  name: {
+    type: String,
+    required: [true, "Set name for contact"],
+  },
+  email: {
+    type: String,
+  },
+  phone: {
+    type: String,
+  },
+  favorite: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-module.exports = joiSchema;
+const joiSchema = Joi.object({
+  name: Joi.string().min(3).max(18).required(),
+  email: Joi.string().required(),
+  phone: Joi.string().required(),
+  favorite: Joi.bool(),
+});
+
+const updateStatusSchema = Joi.object({
+  favorite: Joi.bool().required(),
+});
+
+module.exports = {
+  contactSchema,
+  joiSchema,
+  updateStatusSchema,
+};
