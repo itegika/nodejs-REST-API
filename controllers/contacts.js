@@ -1,4 +1,4 @@
-const Contact = require("../model/contact");
+const { Contact } = require("../model");
 const { NotFound } = require("http-errors");
 
 const getAll = async (req, res) => {
