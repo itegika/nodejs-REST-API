@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { SECRET_KEY } = process.env;
+const gravatar = require("gravatar");
 
 const { User } = require("../model");
 
@@ -15,7 +16,12 @@ const signup = async (req, res) => {
   }
 
   const hashPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
-  const newUser = await User.create({ email, password: hashPassword });
+  const avatarURL = gravatar.url(email);
+  const newUser = await User.create({
+    email,
+    password: hashPassword,
+    avatarURL,
+  });
 
   newUser.save();
 
@@ -25,6 +31,7 @@ const signup = async (req, res) => {
     data: {
       user: {
         email,
+        avatarURL,
         subscription: "starter",
       },
     },
