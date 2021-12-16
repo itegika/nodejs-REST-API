@@ -1,12 +1,12 @@
-const { Conflict } = require("http-errors");
-const { Unauthorized } = require("http-errors");
+const { Conflict, Unauthorized } = require("http-errors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { SECRET_KEY } = process.env;
 const gravatar = require("gravatar");
-
+const { v4 } = require("uuid");
 const { User } = require("../model");
+const sendMail = require("../helpers");
 
 const signup = async (req, res) => {
   const { email, password } = req.body;
@@ -17,13 +17,23 @@ const signup = async (req, res) => {
 
   const hashPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
   const avatarURL = gravatar.url(email);
+  const verificationToken = v4();
   const newUser = await User.create({
     email,
     password: hashPassword,
     avatarURL,
+    verificationToken,
   });
 
   newUser.save();
+
+  const mail = {
+    to: email,
+    subject: "Подтверждение email",
+    html: `<a href="http://localhost:5000/api/users/verify/${verificationToken}">Нажмите для подтверждения</a>`,
+  };
+
+  await sendMail(mail);
 
   res.status(201).json({
     status: "success",
@@ -33,6 +43,7 @@ const signup = async (req, res) => {
         email,
         avatarURL,
         subscription: "starter",
+        verificationToken,
       },
     },
   });
@@ -41,8 +52,8 @@ const signup = async (req, res) => {
 const signin = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
-  if (!user || !bcrypt.compareSync(password, user.password)) {
-    throw new Unauthorized("Email or password is wrong");
+  if (!user || !bcrypt.compareSync(password, user.password || !user.verify)) {
+    throw new Unauthorized("Email or password is wrong or email not verified ");
   }
   const payload = {
     id: user._id,
